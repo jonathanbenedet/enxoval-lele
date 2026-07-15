@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useApp } from '../context/AppContext'
 import BottomNav from '../components/BottomNav'
 import Sidebar from '../components/Sidebar'
@@ -29,10 +29,14 @@ const CATEGORY_STATS = [
   { label: 'Quarto', pct: 12 },
 ]
 
+const PAGE_SIZE = 10
+
 export default function Dashboard() {
   const { items, activeCategory, setActiveCategory, activeFilter, setActiveFilter, progress, checkedCount, totalItems, signOut } = useApp()
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const sentinelRef = useRef(null)
 
   const q = searchQuery.trim().toLowerCase()
 
@@ -47,14 +51,33 @@ export default function Dashboard() {
       )
     : byStatus
 
-  const grouped = filtered.reduce((acc, item) => {
+  useEffect(() => { setVisibleCount(PAGE_SIZE) }, [activeCategory, activeFilter, searchQuery])
+
+  const loadMore = useCallback(() => {
+    setVisibleCount(c => Math.min(c + PAGE_SIZE, filtered.length))
+  }, [filtered.length])
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMore() },
+      { threshold: 0.1 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [loadMore])
+
+  const visible = filtered.slice(0, visibleCount)
+
+  const grouped = visible.reduce((acc, item) => {
     if (!acc[item.category]) acc[item.category] = []
     acc[item.category].push(item)
     return acc
   }, {})
 
   return (
-    <div className="bg-background text-on-surface min-h-screen">
+    <div className="bg-background text-on-surface min-h-screen overflow-x-hidden">
 
       {/* ── Top AppBar ── */}
       <header className="bg-surface/80 backdrop-blur-xl z-50 sticky top-0 w-full flex justify-between items-center px-container-padding h-touch-target shadow-sm">
@@ -104,9 +127,6 @@ export default function Dashboard() {
             <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>add_circle</span>
             <span>Novo item</span>
           </button>
-          <button className="hover:opacity-80 transition-opacity p-2 rounded-full active:scale-95">
-            <span className="material-symbols-outlined text-on-surface-variant">notifications</span>
-          </button>
           <button
             onClick={signOut}
             title="Sair"
@@ -122,50 +142,48 @@ export default function Dashboard() {
         <Sidebar />
 
         {/* ── Main content ── */}
-        <main className="flex-1 md:ml-64 p-container-padding pb-24 md:pb-8">
+        <main className="flex-1 md:ml-64 p-container-padding pb-32 md:pb-8">
 
           {/* Mobile: welcome + chips */}
           <div className="md:hidden space-y-stack-md mb-stack-lg">
             <div>
               <h2 className="text-headline-lg-mobile text-on-surface" style={{ fontFamily: '"Playfair Display", serif', fontWeight: 600 }}>
-                Olá, Mamãe
+                Olá, Papais
               </h2>
               <p className="text-body-md text-on-surface-variant">Sua jornada está {progress}% concluída.</p>
             </div>
             {/* Mobile progress card */}
-            <div className="bg-surface-container-lowest rounded-xl p-stack-md shadow-soft">
-              <div className="flex justify-between items-end mb-stack-sm">
-                <div>
-                  <span className="text-headline-md text-primary" style={{ fontFamily: '"Playfair Display", serif', fontWeight: 600 }}>
+            <div className="bg-surface-container-lowest rounded-xl p-stack-md shadow-card overflow-hidden">
+              <div className="flex justify-between items-end mb-stack-sm gap-2">
+                <div className="min-w-0 flex-1">
+                  <span className="text-headline-md text-primary block truncate" style={{ fontFamily: '"Playfair Display", serif', fontWeight: 600 }}>
                     {progress}% Completo
                   </span>
-                  <p className="text-label-md font-label text-on-surface-variant mt-1">
+                  <p className="text-label-md font-label text-on-surface-variant mt-1 truncate">
                     {checkedCount} de {totalItems} itens comprados
                   </p>
                 </div>
-                <span className="material-symbols-outlined text-primary-container" style={{ fontSize: '32px' }}>child_care</span>
+                <span className="material-symbols-outlined text-primary-container flex-shrink-0" style={{ fontSize: '32px' }}>child_care</span>
               </div>
               <div className="h-2 w-full bg-secondary-container rounded-full overflow-hidden">
                 <div className="h-full bg-primary transition-all duration-1000 ease-out rounded-full" style={{ width: `${progress}%` }} />
               </div>
             </div>
             {/* Mobile category chips */}
-            <div className="overflow-x-auto hide-scrollbar -mx-container-padding px-container-padding">
-              <div className="flex gap-stack-sm">
-                {MOBILE_CATEGORIES.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`px-stack-md py-2 rounded-full text-label-md font-label transition-all active:scale-95 whitespace-nowrap ${
-                      activeCategory === cat.id
-                        ? 'bg-primary text-on-primary'
-                        : 'bg-secondary-container/50 text-on-surface-variant hover:bg-secondary-container'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-stack-sm">
+              {MOBILE_CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-stack-md py-2 rounded-full text-label-md font-label transition-all active:scale-95 whitespace-nowrap ${
+                    activeCategory === cat.id
+                      ? 'bg-primary text-on-primary'
+                      : 'bg-secondary-container/50 text-on-surface-variant hover:bg-secondary-container'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
 
             {/* Mobile search */}
@@ -269,7 +287,7 @@ export default function Dashboard() {
           </div>
 
           <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-stack-md">
-            {filtered.map(item => (
+            {visible.map(item => (
               <ItemCard key={item.id} item={item} />
             ))}
             {filtered.length === 0 && (
@@ -279,23 +297,16 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Load more */}
-          <div className="mt-stack-lg flex justify-center py-8">
-            <button className="border border-outline text-on-surface-variant text-label-md font-label px-8 py-3 rounded-full hover:bg-surface-variant/20 transition-colors active:scale-95">
-              Ver mais itens
-            </button>
+          {/* Infinite scroll sentinel */}
+          <div ref={sentinelRef} className="flex justify-center py-8">
+            {visibleCount < filtered.length && (
+              <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
+            )}
           </div>
         </main>
       </div>
 
       {/* FAB – mobile only */}
-      <button
-        onClick={() => navigate('/add')}
-        className="md:hidden fixed right-6 bottom-24 w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform z-40"
-      >
-        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>add</span>
-      </button>
-
       <BottomNav />
     </div>
   )

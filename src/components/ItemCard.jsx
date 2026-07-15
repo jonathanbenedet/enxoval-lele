@@ -9,7 +9,7 @@ function formatPrice(price) {
 function MobileCard({ item, onToggle, onEdit }) {
   return (
     <div
-      className="bg-white rounded-xl p-3 flex items-center gap-stack-md shadow-card transition-all"
+      className="bg-white rounded-xl p-3 flex items-center gap-2 shadow-card transition-all w-full overflow-hidden"
       style={{ opacity: item.checked ? 0.6 : 1, transform: item.checked ? 'scale(0.98)' : 'scale(1)' }}
     >
       {/* Thumbnail */}
@@ -27,7 +27,7 @@ function MobileCard({ item, onToggle, onEdit }) {
       <div className="flex-grow min-w-0">
         <h4 className="text-label-md font-label text-on-surface truncate">{item.name}</h4>
         <p className="text-label-sm font-label text-on-surface-variant truncate">
-          {item.qty} un{item.detail ? ` • ${item.detail}` : ''}
+          {item.qty} un{item.size ? ` • ${item.size}` : ''}{item.detail ? ` • ${item.detail}` : ''}
         </p>
       </div>
 
@@ -67,14 +67,6 @@ function DesktopCard({ item, onToggle, onEdit }) {
           </div>
         )}
 
-        {item.essential && (
-          <div className="absolute top-3 left-3">
-            <span className="bg-secondary/50 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              Essencial
-            </span>
-          </div>
-        )}
-
         {/* Edit button */}
         <div className="absolute top-3 right-3">
           <button
@@ -92,7 +84,9 @@ function DesktopCard({ item, onToggle, onEdit }) {
         <div className="flex justify-between items-start mb-2">
           <div className="flex-grow min-w-0 pr-2">
             <h3 className="text-label-md font-label text-on-surface mb-1 truncate">{item.name}</h3>
-            <p className="text-[12px] text-on-surface-variant truncate">{item.detail}</p>
+            <p className="text-[12px] text-on-surface-variant truncate">
+              {[item.size, item.detail].filter(Boolean).join(' • ') || null}
+            </p>
           </div>
           <Checkbox checked={item.checked} onToggle={onToggle} />
         </div>

@@ -3,10 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    width: 100%;
+  }
+
   body {
     background-color: #fff8f6;
     -webkit-tap-highlight-color: transparent;
     font-family: 'Inter', sans-serif;
+    width: 100%;
+    min-width: 0;
   }
 
   .material-symbols-outlined {
@@ -34,5 +41,16 @@
 
   .active-nav-item .material-symbols-outlined {
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+@layer utilities {
+  /* iPhone safe area — home indicator e notch */
+  .pb-safe {
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .pb-safe-offset {
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   }
 }

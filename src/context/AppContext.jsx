@@ -129,7 +129,10 @@ export function AppProvider({ children }) {
 
   async function uploadImage(file) {
     const ext = file.name.split('.').pop()
-    const path = `${household.id}/${crypto.randomUUID()}.${ext}`
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const path = `${household.id}/${id}.${ext}`
     const { error } = await supabase.storage
       .from('item-images')
       .upload(path, file, { upsert: false })
