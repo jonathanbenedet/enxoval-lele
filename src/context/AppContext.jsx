@@ -3,6 +3,23 @@ import { supabase } from '../lib/supabase'
 
 const AppContext = createContext(null)
 
+function compressImage(file, maxPx, quality) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = Math.min(1, maxPx / Math.max(img.width, img.height))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(img.width * scale)
+      canvas.height = Math.round(img.height * scale)
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', quality)
+    }
+    img.src = url
+  })
+}
+
 export function AppProvider({ children }) {
   const [session, setSession] = useState(undefined)   // undefined = loading
   const [household, setHousehold] = useState(undefined) // undefined = loading
@@ -128,14 +145,14 @@ export function AppProvider({ children }) {
   }
 
   async function uploadImage(file) {
-    const ext = file.name.split('.').pop()
+    const compressed = await compressImage(file, 600, 0.65)
     const id = typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`
-    const path = `${household.id}/${id}.${ext}`
+    const path = `${household.id}/${id}.jpg`
     const { error } = await supabase.storage
       .from('item-images')
-      .upload(path, file, { upsert: false })
+      .upload(path, compressed, { upsert: false, contentType: 'image/jpeg' })
     if (error) return { url: null, error }
     const { data } = supabase.storage.from('item-images').getPublicUrl(path)
     return { url: data.publicUrl, error: null }
