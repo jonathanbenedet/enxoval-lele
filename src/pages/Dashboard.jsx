@@ -85,7 +85,7 @@ export default function Dashboard() {
           {/* Avatar */}
           <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg4HXM2J9gRpaOZt7yXP1JFhEP4FdGU5hTpJI98yXKXpRQmrucdVHH-OWAyeEGZiBeehaYAe4n9m7KgvrzKN7vhyVynV3sEWRcShkEP3BpmURGIJcJHq2qjlZeS_MlRRSM22-IJWVJTPCrin9lCHgKfcaFhZJqnAJ0V8osT8AzFVUwzcgFzMabo6v42pXmi1ViAIyKIuRTPILcT-Qk-_1qEQPuAh4tEgbPTXdWWisG34URLALYTI3a"
+              src="/android-chrome-192x192.png"
               alt="Avatar"
               className="w-full h-full object-cover"
             />
