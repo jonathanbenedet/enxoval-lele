@@ -1,0 +1,57 @@
+name: Build and Deploy (Vite + Nginx) to VPS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          build-args: |
+            VITE_SUPABASE_URL=${{ vars.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/apps:meu-enxoval
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: 2254
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "Stopping old container..."
+            docker rm -f meu-enxoval || true
+
+            echo "Pulling new image..."
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/apps:meu-enxoval
+
+            echo "Starting new container..."
+            docker run -d \
+              --name meu-enxoval \
+              -p 8041:80 \
+              --memory="256m" \
+              --cpus="0.2" \
+              ${{ secrets.DOCKERHUB_USERNAME }}/apps:meu-enxoval
+
+            echo "Deployment successful!"
