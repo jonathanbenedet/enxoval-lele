@@ -4,7 +4,7 @@ import { useApp } from '../context/AppContext'
 import { supabase } from '../lib/supabase'
 
 export default function HouseholdSetup() {
-  const { createHousehold, joinHousehold, selectHousehold, signOut } = useApp()
+  const { createHousehold, joinHousehold, selectHousehold, signOut, household } = useApp()
   const navigate = useNavigate()
 
   const [existing, setExisting] = useState([])
@@ -15,6 +15,13 @@ export default function HouseholdSetup() {
   const [inviteCode, setInviteCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [codeCopied, setCodeCopied] = useState(false)
+
+  function copyInviteCode() {
+    navigator.clipboard.writeText(household?.invite_code ?? '')
+    setCodeCopied(true)
+    setTimeout(() => setCodeCopied(false), 2000)
+  }
 
   useEffect(() => {
     supabase
@@ -74,6 +81,15 @@ export default function HouseholdSetup() {
           </p>
         </div>
 
+        {existing.length > 0 && (
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute top-4 left-4 flex items-center gap-1 text-label-sm font-label text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-full hover:bg-surface-container"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>arrow_back</span>
+          </button>
+        )}
+
         <button
           onClick={signOut}
           className="absolute top-4 right-4 flex items-center gap-1 text-label-sm font-label text-on-surface-variant hover:text-on-surface transition-colors p-2 rounded-full hover:bg-surface-container"
@@ -115,6 +131,32 @@ export default function HouseholdSetup() {
               <span className="flex-shrink mx-4 text-label-sm font-label text-outline uppercase tracking-widest">ou</span>
               <div className="flex-grow border-t border-outline-variant/30" />
             </div>
+          </div>
+        )}
+
+        {/* Invite code for current household */}
+        {household?.invite_code && (
+          <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-soft">
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-widest mb-3">
+              Código de convite
+            </p>
+            <p className="text-label-sm font-label text-on-surface-variant mb-3">
+              Compartilhe com seu parceiro para acessar o enxoval juntos.
+            </p>
+            <button
+              onClick={copyInviteCode}
+              className="w-full flex items-center justify-between bg-primary-container/20 hover:bg-primary-container/40 active:scale-95 transition-all rounded-xl px-4 py-3"
+            >
+              <span className="text-headline-md text-primary tracking-widest font-bold" style={{ fontFamily: 'monospace' }}>
+                {household.invite_code}
+              </span>
+              <span className="material-symbols-outlined text-primary" style={{ fontSize: '20px' }}>
+                {codeCopied ? 'check' : 'content_copy'}
+              </span>
+            </button>
+            {codeCopied && (
+              <p className="text-label-sm font-label text-primary mt-2 text-center">Copiado!</p>
+            )}
           </div>
         )}
 

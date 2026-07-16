@@ -196,7 +196,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="hidden lg:flex absolute bottom-8 right-8 items-center space-x-6">
+<div className="hidden lg:flex absolute bottom-8 right-8 items-center space-x-6">
           <a href="#" className="text-label-sm font-label text-outline hover:text-on-surface transition-colors">Privacidade</a>
           <a href="#" className="text-label-sm font-label text-outline hover:text-on-surface transition-colors">Termos</a>
         </div>
