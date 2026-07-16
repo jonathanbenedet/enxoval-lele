@@ -4,24 +4,19 @@ import { useApp } from '../context/AppContext'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { signIn, signUp, signInWithGoogle } = useApp()
+  const { signIn, signInWithGoogle } = useApp()
   const [showPassword, setShowPassword] = useState(false)
-  const [isSignUp, setIsSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
-  const [successMsg, setSuccessMsg] = useState('')
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     setErrorMsg('')
-    setSuccessMsg('')
 
-    const error = isSignUp
-      ? await signUp(email, password)
-      : await signIn(email, password)
+    const error = await signIn(email, password)
 
     setLoading(false)
 
@@ -30,11 +25,7 @@ export default function Login() {
       return
     }
 
-    if (isSignUp) {
-      setSuccessMsg('Conta criada! Verifique seu e-mail para confirmar.')
-    } else {
-      navigate('/dashboard')
-    }
+    navigate('/dashboard')
   }
 
   async function handleGoogle() {
@@ -52,7 +43,7 @@ export default function Login() {
           <div
             className="w-full h-full bg-cover bg-center transition-transform duration-[10000ms] hover:scale-110"
             style={{
-              backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuARIexOkHnLfXdJDzCa0SzlfjDHdQW8Y9b6Vu_ph6EKvYwbkO7NaD-AQmsSJVMzKslop8qv4Ih6VG9weYbifNr89ysn1U7DHm7iLnPTJxgnAuS3Aj23Y_l90hLY9dhJ--QD28De-6MryN0oOfPDuvXVNbQnSvVHj-WMlJW0iyLPJs1BrGm7zf58xkhytLVlRYxuWNcJqTUEzYmdYalMLqcxjRAf2wa_uNOPgFhTHKletJG4Zk-SZ9tA')`,
+              backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDVuYhQuKpvBDLcyOieN5I0NvMsvFqpvNiBB_lG6l7IQ2ec-Ydf6l_N791nzsaicMMNnBmDsy7uKKZtry8MY5_EPCqfytimDKCYq8sLsZcVkq3OnDcu5mgjz21p3ahB2goLQJDTX03YUsLoRcUY-_C2ZbGjR_2V5hAmfJjGtnvSQ3GSxFCtkO5Q3c9pBHEjTla7vv_N5IHvdKsMYzZ8G2THNF1WMWcB0-eXKQcUZ8B42xz9btN2d2x3')`,
             }}
           />
           <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />
@@ -86,7 +77,7 @@ export default function Login() {
           />
           <div className="absolute bottom-0 left-0 right-0 px-container-padding pb-stack-md z-20">
             <h1 className="text-headline-lg-mobile text-on-surface" style={{ fontFamily: '"Playfair Display", serif', fontWeight: 600 }}>
-              Bem-vinda ao Enxoval da <span className="text-primary italic">Sofia</span>
+              Bem-vindo ao Monta Enxoval
             </h1>
             <p className="text-body-md text-on-surface-variant mt-1">Organize cada detalhe com amor.</p>
           </div>
@@ -104,10 +95,10 @@ export default function Login() {
             {/* Desktop header */}
             <div className="hidden lg:block space-y-stack-sm">
               <h2 className="text-headline-lg text-on-surface" style={{ fontFamily: '"Playfair Display", serif', fontWeight: 600 }}>
-                {isSignUp ? 'Criar conta' : 'Bem-vinda de volta'}
+                Bem-vinda de volta
               </h2>
               <p className="text-body-md text-on-surface-variant">
-                {isSignUp ? 'Comece a organizar o enxoval da Sofia.' : 'Continue preparando o enxoval da Sofia.'}
+                Continue preparando seu enxoval.
               </p>
             </div>
 
@@ -134,13 +125,8 @@ export default function Login() {
 
               {/* Password */}
               <div className="space-y-1">
-                <div className="flex justify-between items-center px-1">
+                <div className="flex items-center px-1">
                   <label className="text-label-md font-label text-on-surface-variant" htmlFor="password">Senha</label>
-                  {!isSignUp && (
-                    <button type="button" className="text-label-sm font-label text-primary hover:opacity-80 transition-opacity">
-                      Esqueci minha senha
-                    </button>
-                  )}
                 </div>
                 <div className="relative">
                   <input
@@ -166,17 +152,11 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Error / success messages */}
+              {/* Error message */}
               {errorMsg && (
                 <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-error/10 text-error text-label-md">
                   <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>error</span>
                   {errorMsg}
-                </div>
-              )}
-              {successMsg && (
-                <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-primary/10 text-primary text-label-md">
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>check_circle</span>
-                  {successMsg}
                 </div>
               )}
 
@@ -188,7 +168,7 @@ export default function Login() {
                 >
                   {loading ? (
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                  ) : isSignUp ? 'Criar conta' : 'Entrar'}
+                  ) : 'Entrar'}
                 </button>
 
                 <div className="relative flex items-center py-2">
@@ -213,19 +193,6 @@ export default function Login() {
                 </button>
               </div>
             </form>
-
-            <div className="text-center pt-stack-md">
-              <p className="text-body-md text-on-surface-variant">
-                {isSignUp ? 'Já tem conta?' : 'Ainda não tem conta?'}{' '}
-                <button
-                  type="button"
-                  onClick={() => { setIsSignUp(v => !v); setErrorMsg(''); setSuccessMsg('') }}
-                  className="text-primary text-label-md ml-1 hover:underline underline-offset-4 decoration-primary/30 font-semibold"
-                >
-                  {isSignUp ? 'Entrar' : 'Criar conta'}
-                </button>
-              </p>
-            </div>
           </div>
         </div>
 
@@ -241,7 +208,6 @@ export default function Login() {
 function translateError(msg) {
   if (msg.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.'
   if (msg.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar.'
-  if (msg.includes('User already registered')) return 'Este e-mail já está cadastrado.'
   if (msg.includes('Password should be')) return 'A senha deve ter no mínimo 6 caracteres.'
   return msg
 }

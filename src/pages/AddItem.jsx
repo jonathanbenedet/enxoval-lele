@@ -153,7 +153,7 @@ export default function AddItem() {
                 <div className="flex items-center gap-3">
                     <div className="hidden md:block w-8 h-8 rounded-full overflow-hidden border border-primary/20">
                         <img
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY1QMUUnm6PUzwb1OTMi4HDb8DLrtsxzFFYb62FLJ4pNK8wYu3Avy-GbyDV-EXYzYDzjoD0AZnk6py5mKVzHonuTaR5XhH53kUoDWRnOf6nPTFaqZVU6jC_sdjHrEtenGAmUbNi02g4EwKK_0qWU-m_b20X5PxXHmauJvUnZoPBj6iuZInm-sIc9fpwOF15KdKhDdx88aG2WamFLOyK3RbhI87NQTXWzq1eh5RB718dnZ7hWvVpXx5"
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY1QMUUnm6PUz  wb1OTMi4HDb8DLrtsxzFFYb62FLJ4pNK8wYu3Avy-GbyDV-EXYzYDzjoD0AZnk6py5mKVzHonuTaR5XhH53kUoDWRnOf6nPTFaqZVU6jC_sdjHrEtenGAmUbNi02g4EwKK_0qWU-m_b20X5PxXHmauJvUnZoPBj6iuZInm-sIc9fpwOF15KdKhDdx88aG2WamFLOyK3RbhI87NQTXWzq1eh5RB718dnZ7hWvVpXx5"
                             alt="Avatar"
                             className="w-full h-full object-cover"
                         />
